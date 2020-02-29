@@ -67,7 +67,7 @@ function createEarth() {
 // creates a sphere of clouds that is slightly larger than the earth, giving the illusion of depth
 function createClouds() {
   const geometry = new THREE.SphereGeometry(5.03, 32, 32);
-  const map = new THREE.TextureLoader().load("/images/clouds_earth.png");
+  const map = new THREE.TextureLoader().load("images/clouds_earth.png");
   const material = new THREE.MeshPhongMaterial({
     map: map,
     transparent: true,
@@ -81,7 +81,7 @@ function createClouds() {
 // creates a larger sphere to house the universe
 function createUniverse() {
   const geometry = new THREE.SphereGeometry(90, 64, 64);
-  const map = new THREE.TextureLoader().load("/images/universe.png");
+  const map = new THREE.TextureLoader().load("images/universe.png");
   const material = new THREE.MeshBasicMaterial({
     map: map,
     side: THREE.BackSide,
