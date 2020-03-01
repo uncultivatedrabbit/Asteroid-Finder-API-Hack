@@ -1,9 +1,9 @@
 console.log("app.js loaded...");
 
-let renderer, camera, scene, sphere, clouds, controls;
+let renderer, camera, scene, sphere, clouds, controls, asteroid;
 const width = window.innerWidth;
 const height = window.innerHeight;
-const container = $('#container')
+const container = $("#container");
 // calls the init function
 init();
 
@@ -15,17 +15,18 @@ function init() {
   createEarth();
   createClouds();
   createUniverse();
+  createAsteroid();
   createRenderer();
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableKeys = true;
   controls.keys = {
-    LEFT: 65, //A button
+    LEFT: 65, // A button
     UP: 87, // W button
     RIGHT: 68, // D button
-    BOTTOM: 83, // down arrow
+    BOTTOM: 83, // S button
   };
 }
-// establishs camera angle and perspective 
+// establishs camera angle and perspective
 function createCamera() {
   const fieldOfView = 45;
   const aspect = width / height;
@@ -86,15 +87,102 @@ function createUniverse() {
     map: map,
     side: THREE.BackSide,
   });
-  const universe = new THREE.Mesh(geometry, material)
-  scene.add(universe)
+  const universe = new THREE.Mesh(geometry, material);
+  scene.add(universe);
+}
+
+function createAsteroid() {
+  const verticesOfCube = [
+    -1,
+    -1,
+    -1,
+    1,
+    -1,
+    -1,
+    1,
+    1,
+    -1,
+    -1,
+    1,
+    -1,
+    -1,
+    -1,
+    1,
+    1,
+    -1,
+    1,
+    1,
+    1,
+    1,
+    -1,
+    1,
+    1,
+  ];
+
+  const indicesOfFaces = [
+    2,
+    1,
+    0,
+    0,
+    3,
+    2,
+    0,
+    4,
+    7,
+    7,
+    3,
+    0,
+    0,
+    1,
+    5,
+    5,
+    4,
+    0,
+    1,
+    2,
+    6,
+    6,
+    5,
+    1,
+    2,
+    3,
+    7,
+    7,
+    6,
+    2,
+    4,
+    5,
+    6,
+    6,
+    7,
+    4,
+  ];
+
+  const geometry = new THREE.PolyhedronGeometry(
+    verticesOfCube,
+    indicesOfFaces,
+    0.3,
+    1
+  );
+
+  const map = new THREE.TextureLoader().load("images/asteroid_texture.jpg");
+  const material = new THREE.MeshPhongMaterial({
+    map: map,
+    emissive: "rgb(127,255,0)",
+    emissiveIntensity: 0.1,
+    metalness: 0.5
+  });
+
+  asteroid = new THREE.Mesh(geometry, material);
+  asteroid.position.set(4, 6, 1);
+  scene.add(asteroid);
 }
 
 // establishes the renderer and pushes it to the DOM
 function createRenderer() {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(width, height);
-  container.append(renderer.domElement)
+  container.append(renderer.domElement);
 }
 
 // makes sure to dynamically resize the window if a user changes the size of their window
@@ -111,15 +199,24 @@ window.addEventListener("resize", onWindowResize);
 
 // this is where the animations will go, right now the earth and clouds are slowly rotating on the y axis
 function update() {
+  const orbitRadius = 7;
   sphere.rotation.y += 0.0005;
   clouds.rotation.y += 0.0003;
+  asteroid.rotation.y += 0.003;
+  asteroid.rotation.x += 0.003;
+  date = Date.now() * 0.0001;
+  asteroid.position.set(
+    - Math.cos(date) * orbitRadius,
+    0,
+    Math.sin(date) * orbitRadius
+  );
 }
 // renders the scene and camera
 function render() {
   controls.update();
   renderer.render(scene, camera);
 }
-// IFFE that starts an infinite game loop
+// IIFE that starts an infinite game loop
 (function animate() {
   requestAnimationFrame(animate);
   update();
