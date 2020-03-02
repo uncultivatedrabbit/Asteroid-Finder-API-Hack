@@ -17,6 +17,7 @@ function init() {
   createUniverse();
   createAsteroid();
   createRenderer();
+  // getAsteroidData();
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableKeys = true;
   controls.keys = {
@@ -89,6 +90,23 @@ function createUniverse() {
   });
   const universe = new THREE.Mesh(geometry, material);
   scene.add(universe);
+}
+
+// fetchs asteroid data from NASA API
+function getAsteroidData() {
+  const apiKey = "iQYxYsoCOcjyRLDV68fNJI3SExbOdV2PRo6E4aKb";
+  const startDate = "2020-02-01";
+  const endDate = "2020-02-02";
+  const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${endDate}&api_key=${apiKey}`;
+  fetch(url)
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error("something went wrong");
+      }
+    })
+    .then(data => console.log(data));
 }
 
 function createAsteroid() {
@@ -166,16 +184,30 @@ function createAsteroid() {
   );
 
   const map = new THREE.TextureLoader().load("images/asteroid_texture.jpg");
+  const glow = new THREE.TextureLoader().load("images/green-glow.jpg");
   const material = new THREE.MeshPhongMaterial({
     map: map,
-    emissive: "rgb(127,255,0)",
-    emissiveIntensity: 0.1,
-    metalness: 0.5
+    emissive: 0xffffff,
+    // emissiveIntensity: 0.1,
+    emissiveMap: glow,
   });
 
   asteroid = new THREE.Mesh(geometry, material);
+  asteroid.name = "asteroid"
   asteroid.position.set(4, 6, 1);
   scene.add(asteroid);
+}
+
+// function to determine if client is hovering over an object
+function mouseDetectAsteroid(event){
+  const mouse = new THREE.Vector2();
+  mouse.x = (event.clientX / width) * 2 - 1;
+  mouse.y = - (event.clientY / height) * 2 + 1;
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera( mouse, camera );
+  const asteroidOnHover = scene.getObjectByName("asteroid");
+  const intersects = raycaster.intersectObject(asteroidOnHover);
+  return intersects.length > 0 ? $('html,body').css('cursor', 'pointer') : $('html,body').css('cursor', 'default');
 }
 
 // establishes the renderer and pushes it to the DOM
@@ -196,6 +228,8 @@ function onWindowResize() {
 
 // add event listener to resize renderer when browser window changes
 window.addEventListener("resize", onWindowResize);
+//
+window.addEventListener( 'mousemove', mouseDetectAsteroid, false );
 
 // this is where the animations will go, right now the earth and clouds are slowly rotating on the y axis
 function update() {
@@ -206,7 +240,7 @@ function update() {
   asteroid.rotation.x += 0.003;
   date = Date.now() * 0.0001;
   asteroid.position.set(
-    - Math.cos(date) * orbitRadius,
+    -Math.cos(date) * orbitRadius,
     0,
     Math.sin(date) * orbitRadius
   );
