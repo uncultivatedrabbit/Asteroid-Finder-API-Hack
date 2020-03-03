@@ -17,6 +17,7 @@ function init() {
   createUniverse();
   createAsteroid();
   createRenderer();
+  displayResults();
   // getAsteroidData();
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableKeys = true;
@@ -95,9 +96,8 @@ function createUniverse() {
 // fetchs asteroid data from NASA API
 function getAsteroidData() {
   const apiKey = "iQYxYsoCOcjyRLDV68fNJI3SExbOdV2PRo6E4aKb";
-  const startDate = "2020-02-01";
-  const endDate = "2020-02-02";
-  const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${endDate}&api_key=${apiKey}`;
+  const testDate = "2020-02-01";
+  const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${testDate}&end_date=${testDate}&api_key=${apiKey}`;
   fetch(url)
     .then(response => {
       if (response.ok) {
@@ -106,8 +106,26 @@ function getAsteroidData() {
         throw new Error("something went wrong");
       }
     })
-    .then(data => console.log(data));
+    .then(response => displayResults(response))
 }
+
+// rendering data to the DOM
+function displayResults(response) {
+  $(response).ready(function () {
+      $('.depictedItem').addClass('hidden')
+  })
+
+  console.log(response);
+  for (let i = 0; i < response.near_earth_objects.testDate.length;i++){
+    console.log(response.near_earth_objects.testDate[i].name)
+   $('.js-results').append(`<div class="result-item">${response.near_earth_objects.testDate[i].name}</div>`)
+  }
+  
+  $('.js-results').removeClass('hidden')
+
+}
+
+
 
 function createAsteroid() {
   const verticesOfCube = [
@@ -231,9 +249,19 @@ window.addEventListener("resize", onWindowResize);
 //
 window.addEventListener( 'mousemove', mouseDetectAsteroid, false );
 
+// Randomly generated number for orbital distene when ever an object is selected
+function OrbitGenerator(min,max){
+  let  mainNum = 0
+  return Math.random() * (max - min) + min;
+   
+   
+
+}
+
 // this is where the animations will go, right now the earth and clouds are slowly rotating on the y axis
+
 function update() {
-  const orbitRadius = 7;
+  const orbitRadius = 10;
   sphere.rotation.y += 0.0005;
   clouds.rotation.y += 0.0003;
   asteroid.rotation.y += 0.003;
@@ -255,4 +283,5 @@ function render() {
   requestAnimationFrame(animate);
   update();
   render();
+
 })();
