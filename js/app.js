@@ -1,6 +1,8 @@
 console.log("app.js loaded...");
 
-let renderer, camera, scene, sphere, clouds, controls, asteroid;
+let renderer, camera, scene, sphere, clouds, controls;
+const asteroids = [];
+let dataLoaded = false;
 const width = window.innerWidth;
 const height = window.innerHeight;
 const container = $("#container");
@@ -15,10 +17,9 @@ function init() {
   createEarth();
   createClouds();
   createUniverse();
-  createAsteroid();
   createRenderer();
-  displayResults();
-  // getAsteroidData();
+  // displayResults();
+  getAsteroidData();
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableKeys = true;
   controls.keys = {
@@ -35,7 +36,7 @@ function createCamera() {
   const near = 0.01;
   const far = 1000;
   camera = new THREE.PerspectiveCamera(fieldOfView, aspect, near, far);
-  camera.position.set(0, 0, 20); // x | y | z
+  camera.position.set(0, 0, 40); // x | y | z
   scene.add(camera);
 }
 
@@ -106,28 +107,13 @@ function getAsteroidData() {
         throw new Error("something went wrong");
       }
     })
-    .then(response => displayResults(response))
+    .then(data => {
+      createAsteroid(data);
+    })
+    .catch(err => console.log(err));
 }
 
-// rendering data to the DOM
-function displayResults(response) {
-  $(response).ready(function () {
-      $('.depictedItem').addClass('hidden')
-  })
-
-  console.log(response);
-  for (let i = 0; i < response.near_earth_objects.testDate.length;i++){
-    console.log(response.near_earth_objects.testDate[i].name)
-   $('.js-results').append(`<div class="result-item">${response.near_earth_objects.testDate[i].name}</div>`)
-  }
-  
-  $('.js-results').removeClass('hidden')
-
-}
-
-
-
-function createAsteroid() {
+function createAsteroid(asteroidData) {
   const verticesOfCube = [
     -1,
     -1,
@@ -210,22 +196,68 @@ function createAsteroid() {
     emissiveMap: glow,
   });
 
-  asteroid = new THREE.Mesh(geometry, material);
-  asteroid.name = "asteroid"
-  asteroid.position.set(4, 6, 1);
-  scene.add(asteroid);
+  // asteroid = new THREE.Mesh(geometry, material);
+  // asteroid.name = "asteroid"
+  // asteroid.position.set(4, 6, 1);
+  // scene.add(asteroid);
+  const parsedData = Object.values(asteroidData.near_earth_objects)[0];
+  for (let i = 0; i < parsedData.length; i++) {
+    asteroids.push(new THREE.Mesh(geometry, material));
+  }
+  dataLoaded = true;
+  renderAsteroids(parsedData);
+  displayResults(parsedData);
+}
+
+// rendering data to the DOM
+function displayResults(parsedData) {
+  $(parsedData).ready(function() {
+    $(".depictedItem").addClass("hidden");
+  });
+
+  for (let i = 0; i < parsedData.length; i++) {
+    console.log(parsedData[i].name);
+    $(".js-results").append(
+      `<div class="result-item">${parsedData[i].name}</div>`
+    );
+  }
+
+  $(".js-results").removeClass("hidden");
+}
+
+function renderAsteroids(parsedData) {
+  if (dataLoaded) {
+    asteroids.forEach((asteroid, index) => {
+      asteroid.position.x = Math.random() * 2 - 1;
+      asteroid.position.y = Math.random() * 2 - 1;
+      asteroid.position.z = Math.random() * 2 - 1;
+      asteroid.orbitRadius = Math.random() * 20 - 1;
+      asteroid.position.normalize();
+      asteroid.position.multiplyScalar(12);
+      asteroid.name = parsedData[index].name;
+      scene.add(asteroid);
+    });
+  }
 }
 
 // function to determine if client is hovering over an object
-function mouseDetectAsteroid(event){
+function mouseDetectAsteroid(event) {
   const mouse = new THREE.Vector2();
   mouse.x = (event.clientX / width) * 2 - 1;
-  mouse.y = - (event.clientY / height) * 2 + 1;
+  mouse.y = -(event.clientY / height) * 2 + 1;
   const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera( mouse, camera );
-  const asteroidOnHover = scene.getObjectByName("asteroid");
-  const intersects = raycaster.intersectObject(asteroidOnHover);
-  return intersects.length > 0 ? $('html,body').css('cursor', 'pointer') : $('html,body').css('cursor', 'default');
+  raycaster.setFromCamera(mouse, camera);
+  if (dataLoaded) {
+    const intersects = raycaster.intersectObjects(asteroids);
+    if (intersects.length > 0) {
+      const currentAsteroid = intersects[0].object;
+      const currentAsteroidName = currentAsteroid.name;
+      console.log(currentAsteroidName);
+      $("html, body").css("cursor", "pointer");
+    } else {
+      $("html, body").css("cursor", "default");
+    }
+  }
 }
 
 // establishes the renderer and pushes it to the DOM
@@ -247,15 +279,12 @@ function onWindowResize() {
 // add event listener to resize renderer when browser window changes
 window.addEventListener("resize", onWindowResize);
 //
-window.addEventListener( 'mousemove', mouseDetectAsteroid, false );
+window.addEventListener("mousemove", mouseDetectAsteroid, false);
 
 // Randomly generated number for orbital distene when ever an object is selected
-function OrbitGenerator(min,max){
-  let  mainNum = 0
+function OrbitGenerator(min, max) {
+  let mainNum = 0;
   return Math.random() * (max - min) + min;
-   
-   
-
 }
 
 // this is where the animations will go, right now the earth and clouds are slowly rotating on the y axis
@@ -264,14 +293,14 @@ function update() {
   const orbitRadius = 10;
   sphere.rotation.y += 0.0005;
   clouds.rotation.y += 0.0003;
-  asteroid.rotation.y += 0.003;
-  asteroid.rotation.x += 0.003;
-  date = Date.now() * 0.0001;
-  asteroid.position.set(
-    -Math.cos(date) * orbitRadius,
-    0,
-    Math.sin(date) * orbitRadius
-  );
+  // asteroid.rotation.y += 0.003;
+  // asteroid.rotation.x += 0.003;
+  // date = Date.now() * 0.0001;
+  // asteroid.position.set(
+  //   -Math.cos(date) * orbitRadius,
+  //   0,
+  //   Math.sin(date) * orbitRadius
+  // );
 }
 // renders the scene and camera
 function render() {
@@ -283,5 +312,4 @@ function render() {
   requestAnimationFrame(animate);
   update();
   render();
-
 })();
