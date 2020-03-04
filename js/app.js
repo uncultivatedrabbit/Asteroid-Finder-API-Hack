@@ -21,6 +21,7 @@ function init() {
   createLight();
   createEarth();
   createClouds();
+  createMoon();
   createUniverse();
   createRenderer();
   getAsteroidData();
@@ -84,6 +85,18 @@ function createClouds() {
   });
   clouds = new THREE.Mesh(geometry, material);
   scene.add(clouds);
+}
+
+// creans earth's moon
+function createMoon() {
+  const geometry = new THREE.SphereGeometry(2, 32, 32);
+  const map = new THREE.TextureLoader().load("images/moon-texture.jpg");
+  const material = new THREE.MeshPhongMaterial({
+    map: map,
+  });
+  moon = new THREE.Mesh(geometry, material);
+  moon.position.set(10, 10, 10);
+  scene.add(moon);
 }
 
 // creates a larger sphere to house the universe
@@ -233,11 +246,9 @@ function displayResults(parsedData) {
   $(parsedData).ready(function() {
     $(".depictedItem").addClass("hidden");
   });
-  parsedData.map((dataPoint) => {
-    $(".js-results").append(
-      `<div class="result-item">${dataPoint.name}</div>`
-    );
-  })
+  parsedData.map(dataPoint => {
+    $(".js-results").append(`<div class="result-item">${dataPoint.name}</div>`);
+  });
   $(".js-results").removeClass("hidden");
 }
 
@@ -256,7 +267,6 @@ function renderAsteroids(parsedData) {
     });
   }
 }
-
 
 // function to determine if client is hovering over an object
 function mouseDetectAsteroid(event) {
@@ -339,23 +349,23 @@ window.addEventListener("resize", onWindowResize);
 window.addEventListener("click", clickDetectAsteroid, false);
 window.addEventListener("mousemove", mouseDetectAsteroid, false);
 
-
 function update() {
-  // const orbitRadius = 10;
+  const orbitRadius = 15;
   sphere.rotation.y += 0.0005;
+  moon.rotation.y += 0.0005;
   clouds.rotation.y += 0.0003;
   if (dataLoaded) {
     asteroids.forEach((asteroid, index) => {
       asteroid.rotation.y += 0.03;
       asteroid.rotation.x += 0.03;
-      date = Date.now() * 0.0001;
-    //   asteroid.position.set(
-    //     -Math.cos(asteroid.rotation.z) * index,
-    //     asteroid.position.y,
-    //     Math.sin(asteroid.rotation.z) * index
-    //   );
     });
   }
+  date = Date.now() * 0.00008;
+  moon.position.set(
+    -Math.cos(date) * orbitRadius,
+    moon.position.y,
+    Math.sin(date) * orbitRadius
+  );
 }
 // renders the scene and camera
 function render() {
