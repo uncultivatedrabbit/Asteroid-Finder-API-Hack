@@ -235,24 +235,37 @@ function renderAsteroids(parsedData) {
       asteroid.position.normalize();
       asteroid.position.multiplyScalar(12);
       asteroid.name = parsedData[index].name;
+      asteroid.Mag = parsedData[index].absolute_magnitude_h;
       scene.add(asteroid);
     });
   }
 }
 
+// displaying rendered data window
+
+
 // function to determine if client is hovering over an object
 function mouseDetectAsteroid(event) {
   const mouse = new THREE.Vector2();
+  let currentAsteroid;
+  let currentAsteroidName;
+  let astroidMag;
   mouse.x = (event.clientX / width) * 2 - 1;
   mouse.y = -(event.clientY / height) * 2 + 1;
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
   if (dataLoaded) {
+    console.log("im clicked tooo")
     const intersects = raycaster.intersectObjects(asteroids);
     if (intersects.length > 0) {
-      const currentAsteroid = intersects[0].object;
-      const currentAsteroidName = currentAsteroid.name;
+      currentAsteroid = intersects[0].object;
+      astroidMag = currentAsteroid.Mag
+      console.log(astroidMag);
+      currentAsteroidName = currentAsteroid.name;
       console.log(currentAsteroidName);
+      console.log("im clicked")
+      $(".astroids-Results").append(`<h1>${currentAsteroidName}</h1>`)
+      console.log(currentAsteroidName)
       $("html, body").css("cursor", "pointer");
     } else {
       $("html, body").css("cursor", "default");
@@ -279,7 +292,7 @@ function onWindowResize() {
 // add event listener to resize renderer when browser window changes
 window.addEventListener("resize", onWindowResize);
 //
-window.addEventListener("mousemove", mouseDetectAsteroid, false);
+window.addEventListener("click", mouseDetectAsteroid, false);
 
 // Randomly generated number for orbital distene when ever an object is selected
 function OrbitGenerator(min, max) {
