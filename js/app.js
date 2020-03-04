@@ -8,11 +8,14 @@ const asteroids = [];
 const width = window.innerWidth;
 const height = window.innerHeight;
 const container = $("#container");
+
 // calls the init function
 init();
 
 // begins the scene and calls each create function
 function init() {
+  //initially hide asteroid tool tip
+  $("#asteroidTooltip").hide();
   scene = new THREE.Scene();
   createCamera();
   createLight();
@@ -20,7 +23,6 @@ function init() {
   createClouds();
   createUniverse();
   createRenderer();
-  // displayResults();
   getAsteroidData();
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableKeys = true;
@@ -116,6 +118,8 @@ function getAsteroidData() {
 }
 
 function createAsteroid(asteroidData) {
+  const parsedData = Object.values(asteroidData.near_earth_objects)[0];
+  let radius;
   const verticesOfCube = [
     -1,
     -1,
@@ -182,29 +186,42 @@ function createAsteroid(asteroidData) {
     4,
   ];
 
-  const geometry = new THREE.PolyhedronGeometry(
-    verticesOfCube,
-    indicesOfFaces,
-    0.3,
-    1
-  );
-
   const map = new THREE.TextureLoader().load("images/asteroid_texture.jpg");
-  const glow = new THREE.TextureLoader().load("images/green-glow.jpg");
-  const material = new THREE.MeshPhongMaterial({
+  const safeGlow = new THREE.TextureLoader().load("images/green-glow.jpg");
+  const unsafeGlow = new THREE.TextureLoader().load("images/red-glow.jpg");
+  const materialSafe = new THREE.MeshPhongMaterial({
     map: map,
     emissive: 0xffffff,
-    // emissiveIntensity: 0.1,
-    emissiveMap: glow,
+    emissiveIntensity: 0.9,
+    emissiveMap: safeGlow,
   });
-
-  // asteroid = new THREE.Mesh(geometry, material);
-  // asteroid.name = "asteroid"
-  // asteroid.position.set(4, 6, 1);
-  // scene.add(asteroid);
-  const parsedData = Object.values(asteroidData.near_earth_objects)[0];
+  const materialUnsafe = new THREE.MeshPhongMaterial({
+    map: map,
+    emissive: 0xffffff,
+    emissiveIntensity: 0.9,
+    emissiveMap: unsafeGlow,
+  });
+  // checks if asteroid is hazerdous or not and pushes a different colored asteroid
   for (let i = 0; i < parsedData.length; i++) {
-    asteroids.push(new THREE.Mesh(geometry, material));
+    const geometry = new THREE.PolyhedronGeometry(
+      verticesOfCube,
+      indicesOfFaces,
+      radius || 0.3, // radius
+      1 // detail
+    );
+    let diameter =
+      Object.values(parsedData[i].estimated_diameter)[3]
+        .estimated_diameter_min / 2000;
+    if (diameter < 0.3) {
+      radius = 0.3;
+    } else {
+      radius = 0.3 * diameter;
+    }
+    if (parsedData[i].is_potentially_hazardous_asteroid) {
+      asteroids.push(new THREE.Mesh(geometry, materialUnsafe));
+    } else {
+      asteroids.push(new THREE.Mesh(geometry, materialSafe));
+    }
   }
   dataLoaded = true;
   renderAsteroids(parsedData);
@@ -232,17 +249,16 @@ function renderAsteroids(parsedData) {
       asteroid.position.x = Math.random() * 2 - 1;
       asteroid.position.y = Math.random() * 2 - 1;
       asteroid.position.z = Math.random() * 2 - 1;
-      asteroid.orbitRadius = Math.random() * 20 - 1;
+      asteroid.orbitRadius = Math.random() * 30 - 1;
       asteroid.position.normalize();
-      asteroid.position.multiplyScalar(12);
+      asteroid.position.multiplyScalar(14);
       asteroid.name = parsedData[index].name;
-      asteroid.Mag = parsedData[index].absolute_magnitude_h;
+      asteroid.magnitude = parsedData[index].absolute_magnitude_h;
       scene.add(asteroid);
     });
   }
 }
 
-// displaying rendered data window
 
 // function to determine if client is hovering over an object
 function mouseDetectAsteroid(event) {
@@ -256,12 +272,23 @@ function mouseDetectAsteroid(event) {
     if (intersects.length > 0) {
       const currentAsteroid = intersects[0].object;
       $("html, body").css("cursor", "pointer");
+      $("#asteroidTooltip").css({
+        top: event.pageY - 50,
+        left: event.pageX,
+        position: "absolute",
+        border: "1px solid black",
+        background: "white",
+        padding: "5px",
+      });
+      $("#asteroidTooltip").html(`Name: ${currentAsteroid.name}`);
+      $("#asteroidTooltip").show();
     } else {
       $("html, body").css("cursor", "default");
+      $("#asteroidTooltip").hide();
     }
   }
 }
-
+// detects when user has clicked on a specific asteroid
 function clickDetectAsteroid(event) {
   const mouse = new THREE.Vector2();
   mouse.x =
@@ -314,22 +341,21 @@ window.addEventListener("resize", onWindowResize);
 window.addEventListener("click", clickDetectAsteroid, false);
 window.addEventListener("mousemove", mouseDetectAsteroid, false);
 
-// this is where the animations will go, right now the earth and clouds are slowly rotating on the y axis
 
 function update() {
-  const orbitRadius = 10;
+  // const orbitRadius = 10;
   sphere.rotation.y += 0.0005;
   clouds.rotation.y += 0.0003;
   if (dataLoaded) {
     asteroids.forEach((asteroid, index) => {
-      asteroid.rotation.y += 0.003;
-      asteroid.rotation.x += 0.003;
+      asteroid.rotation.y += 0.03;
+      asteroid.rotation.x += 0.03;
       date = Date.now() * 0.0001;
-      // asteroid.position.set(
-      //   -Math.cos(date) * asteroid.orbitRadius * index ,
-      //   0,
-      //   Math.sin(date) * asteroid.orbitRadius * index
-      // );
+    //   asteroid.position.set(
+    //     -Math.cos(asteroid.rotation.z) * index,
+    //     asteroid.position.y,
+    //     Math.sin(asteroid.rotation.z) * index
+    //   );
     });
   }
 }
