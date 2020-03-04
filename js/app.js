@@ -233,13 +233,11 @@ function displayResults(parsedData) {
   $(parsedData).ready(function() {
     $(".depictedItem").addClass("hidden");
   });
-
-  for (let i = 0; i < parsedData.length; i++) {
+  parsedData.map((dataPoint) => {
     $(".js-results").append(
-      `<div class="result-item">${parsedData[i].name}</div>`
+      `<div class="result-item">${dataPoint.name}</div>`
     );
-  }
-
+  })
   $(".js-results").removeClass("hidden");
 }
 
