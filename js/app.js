@@ -1,8 +1,10 @@
 console.log("app.js loaded...");
 
 let renderer, camera, scene, sphere, clouds, controls;
-const asteroids = [];
+// check if fetched data has been included
 let dataLoaded = false;
+// array to store asteroids once fetch call is complete
+const asteroids = [];
 const width = window.innerWidth;
 const height = window.innerHeight;
 const container = $("#container");
@@ -104,7 +106,7 @@ function getAsteroidData() {
       if (response.ok) {
         return response.json();
       } else {
-        throw new Error("something went wrong");
+        throw new Error(response.statusText);
       }
     })
     .then(data => {
@@ -216,7 +218,6 @@ function displayResults(parsedData) {
   });
 
   for (let i = 0; i < parsedData.length; i++) {
-    console.log(parsedData[i].name);
     $(".js-results").append(
       `<div class="result-item">${parsedData[i].name}</div>`
     );
@@ -243,29 +244,47 @@ function renderAsteroids(parsedData) {
 
 // displaying rendered data window
 
-
 // function to determine if client is hovering over an object
 function mouseDetectAsteroid(event) {
   const mouse = new THREE.Vector2();
-  let currentAsteroid;
-  let currentAsteroidName;
-  let astroidMag;
   mouse.x = (event.clientX / width) * 2 - 1;
   mouse.y = -(event.clientY / height) * 2 + 1;
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
   if (dataLoaded) {
-    console.log("im clicked tooo")
     const intersects = raycaster.intersectObjects(asteroids);
     if (intersects.length > 0) {
-      currentAsteroid = intersects[0].object;
-      astroidMag = currentAsteroid.Mag
-      console.log(astroidMag);
-      currentAsteroidName = currentAsteroid.name;
-      console.log(currentAsteroidName);
-      console.log("im clicked")
-      $(".astroids-Results").append(`<h1>${currentAsteroidName}</h1>`)
-      console.log(currentAsteroidName)
+      const currentAsteroid = intersects[0].object;
+      $("html, body").css("cursor", "pointer");
+    } else {
+      $("html, body").css("cursor", "default");
+    }
+  }
+}
+
+function clickDetectAsteroid(event) {
+  const mouse = new THREE.Vector2();
+  mouse.x =
+    ((event.clientX - renderer.domElement.offsetLeft) /
+      renderer.domElement.width) *
+      2 -
+    1;
+  mouse.y =
+    -(
+      (event.clientY - renderer.domElement.offsetTop) /
+      renderer.domElement.height
+    ) *
+      2 +
+    1;
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+  if (dataLoaded) {
+    const intersects = raycaster.intersectObjects(asteroids);
+    if (intersects.length > 0) {
+      const currentAsteroid = intersects[0].object;
+      const asteroidMagnitude = currentAsteroid.Mag;
+      const currentAsteroidName = currentAsteroid.name;
+      $(".asteroids-Results").html(`<h1>${currentAsteroidName}</h1>`);
       $("html, body").css("cursor", "pointer");
     } else {
       $("html, body").css("cursor", "default");
@@ -292,13 +311,8 @@ function onWindowResize() {
 // add event listener to resize renderer when browser window changes
 window.addEventListener("resize", onWindowResize);
 //
-window.addEventListener("click", mouseDetectAsteroid, false);
-
-// Randomly generated number for orbital distene when ever an object is selected
-function OrbitGenerator(min, max) {
-  let mainNum = 0;
-  return Math.random() * (max - min) + min;
-}
+window.addEventListener("click", clickDetectAsteroid, false);
+window.addEventListener("mousemove", mouseDetectAsteroid, false);
 
 // this is where the animations will go, right now the earth and clouds are slowly rotating on the y axis
 
@@ -306,14 +320,18 @@ function update() {
   const orbitRadius = 10;
   sphere.rotation.y += 0.0005;
   clouds.rotation.y += 0.0003;
-  // asteroid.rotation.y += 0.003;
-  // asteroid.rotation.x += 0.003;
-  // date = Date.now() * 0.0001;
-  // asteroid.position.set(
-  //   -Math.cos(date) * orbitRadius,
-  //   0,
-  //   Math.sin(date) * orbitRadius
-  // );
+  if (dataLoaded) {
+    asteroids.forEach((asteroid, index) => {
+      asteroid.rotation.y += 0.003;
+      asteroid.rotation.x += 0.003;
+      date = Date.now() * 0.0001;
+      // asteroid.position.set(
+      //   -Math.cos(date) * asteroid.orbitRadius * index ,
+      //   0,
+      //   Math.sin(date) * asteroid.orbitRadius * index
+      // );
+    });
+  }
 }
 // renders the scene and camera
 function render() {

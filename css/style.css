@@ -8,8 +8,8 @@ canvas{
   height: 100%;
 }
 .userOuterDiv{
-  position: relative;
-  top:300px;
+  position: absolute;
+  top:0;
   padding: 20px;
   width:20%;
   background-color: rgba(131, 131, 177, 0.616);
