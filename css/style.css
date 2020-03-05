@@ -9,14 +9,37 @@ canvas{
 }
 .userOuterDiv{
   position: absolute;
-  top:0;
-  padding: 20px;
+  top:5%;
+  left:2%;
+  height: 80%;
+  padding: 15px;
   width:20%;
-  background-color: rgba(131, 131, 177, 0.616);
+  background-color: rgba(16, 92, 102, 0.616);
   border-radius: 25px;
 
 }
 h1{
   text-align: center;
   font-weight: bolder;
+}
+.instructions{
+  width: 80%;
+  font-size: 1,4em;
+  text-align: left;
+  font-weight: bolder
+}
+
+
+.depictedItem{
+  font-size: 0.9em;
+  columns: 2;
+}
+.resultDiv{
+   width: 100%;
+
+}
+.asteroids-Results{
+  text-align: left;
+  font-size: 1.2em;
+  list-style: none;
 }

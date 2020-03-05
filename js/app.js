@@ -263,6 +263,7 @@ function renderAsteroids(parsedData) {
       asteroid.position.multiplyScalar(14);
       asteroid.name = parsedData[index].name;
       asteroid.magnitude = parsedData[index].absolute_magnitude_h;
+      console.log(asteroid.magnitude)
       scene.add(asteroid);
     });
   }
@@ -319,7 +320,7 @@ function clickDetectAsteroid(event) {
       const currentAsteroid = intersects[0].object;
       const asteroidMagnitude = currentAsteroid.Mag;
       const currentAsteroidName = currentAsteroid.name;
-      $(".asteroids-Results").html(`<h1>${currentAsteroidName}</h1>`);
+      $(".asteroids-Results").html(`<ul><li>Meteor Name:${currentAsteroidName}</li><li>Magnatude:${asteroidMagnitude}</li></ul>`);
       $("html, body").css("cursor", "pointer");
     } else {
       $("html, body").css("cursor", "default");
