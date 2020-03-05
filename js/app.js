@@ -318,9 +318,9 @@ function clickDetectAsteroid(event) {
     const intersects = raycaster.intersectObjects(asteroids);
     if (intersects.length > 0) {
       const currentAsteroid = intersects[0].object;
-      const asteroidMagnitude = currentAsteroid.Mag;
+      const asteroidMagnitude = currentAsteroid.magnitude;
       const currentAsteroidName = currentAsteroid.name;
-      $(".asteroids-Results").html(`<ul><li>Meteor Name:${currentAsteroidName}</li><li>Magnatude:${asteroidMagnitude}</li></ul>`);
+      $(".asteroids-Results").html(`<ul><li>Asteroid Name: ${currentAsteroidName}</li><li>Magnitude: ${asteroidMagnitude}</li></ul>`);
       $("html, body").css("cursor", "pointer");
     } else {
       $("html, body").css("cursor", "default");
