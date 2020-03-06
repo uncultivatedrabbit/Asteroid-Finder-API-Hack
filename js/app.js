@@ -297,9 +297,12 @@ function mouseDetectAsteroid(event) {
         top: event.pageY - 50,
         left: event.pageX,
         position: "absolute",
-        border: "1px solid black",
-        background: "white",
+        background: "rgba(16, 92, 102, 0.616)",
         padding: "5px",
+        color: "#FFFFFF",
+        borderRadius: "5px",
+        letterSpacing: "2px"
+
       });
       $("#asteroidTooltip").html(`Name: ${currentAsteroid.name}`);
       $("#asteroidTooltip").show();
@@ -330,9 +333,9 @@ function clickDetectAsteroid(event) {
     const intersects = raycaster.intersectObjects(asteroids);
     if (intersects.length > 0) {
       const currentAsteroid = intersects[0].object;
-      const asteroidMagnitude = currentAsteroid.Mag;
+      const asteroidMagnitude = currentAsteroid.magnitude;
       const currentAsteroidName = currentAsteroid.name;
-      $(".asteroids-Results").html(`<ul><li>Meteor Name:${currentAsteroidName}</li><li>Magnatude:${asteroidMagnitude}</li></ul>`);
+      $(".asteroids-Results").html(`<ul><li>Asteroid Name: ${currentAsteroidName}</li><li>Magnitude: ${asteroidMagnitude}</li></ul>`);
       $("html, body").css("cursor", "pointer");
     } else {
       $("html, body").css("cursor", "default");
