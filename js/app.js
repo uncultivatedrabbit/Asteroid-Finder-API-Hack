@@ -285,9 +285,12 @@ function mouseDetectAsteroid(event) {
         top: event.pageY - 50,
         left: event.pageX,
         position: "absolute",
-        border: "1px solid black",
-        background: "white",
+        background: "rgba(16, 92, 102, 0.616)",
         padding: "5px",
+        color: "#FFFFFF",
+        borderRadius: "5px",
+        letterSpacing: "2px"
+
       });
       $("#asteroidTooltip").html(`Name: ${currentAsteroid.name}`);
       $("#asteroidTooltip").show();
