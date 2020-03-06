@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
     <title>Mapping Asteroids Orbiting Earth</title>
     <link
       href="https://fonts.googleapis.com/css?family=Oxanium|Space+Mono&display=swap"
@@ -13,7 +13,7 @@
   <body>
     <div id="container">
       <div id="header">
-        <h1>Visualizing Asteroid using NASA Data</h1>
+        <h1>Visualizing Asteroids using NASA Data</h1>
       </div>
       <div id="asteroidTooltip"></div>
       <main class="user-form">
@@ -25,6 +25,7 @@
             id="user-date"
             min="1900/01/01"
             max="2040/01/01"
+            required
           />
           <button type="submit" id="find-btn" class="css-search">
             Search
@@ -32,15 +33,10 @@
         </form>
       </main>
     </div>
-
     <script
       src="https://code.jquery.com/jquery-3.4.1.min.js"
       integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
       crossorigin="anonymous"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"
     ></script>
     <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>

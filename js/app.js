@@ -24,7 +24,6 @@ function init() {
   createUniverse();
   createRenderer();
   getAsteroidData();
-
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableKeys = true;
   controls.keys = {
@@ -89,7 +88,7 @@ function createClouds() {
 
 // creans earth's moon
 function createMoon() {
-  const geometry = new THREE.SphereGeometry(2, 32, 32);
+  const geometry = new THREE.SphereGeometry(1.3, 32, 32);
   const map = new THREE.TextureLoader().load("images/moon-texture.jpg");
   const material = new THREE.MeshPhongMaterial({
     map: map,
@@ -240,7 +239,7 @@ function createAsteroid(asteroidData) {
     let diameter =
       Object.values(parsedData[i].estimated_diameter)[3]
         .estimated_diameter_min / 2000;
-        console.log(diameter)
+    console.log(diameter);
     if (diameter < 0.03) {
       radius = 0.5;
     } else {
@@ -254,19 +253,8 @@ function createAsteroid(asteroidData) {
   }
   dataLoaded = true;
   renderAsteroids(parsedData);
-  displayResults(parsedData);
 }
 
-// rendering data to the DOM
-function displayResults(parsedData) {
-  $(parsedData).ready(function() {
-    $(".depictedItem").addClass("hidden");
-  });
-  parsedData.map(dataPoint => {
-    $(".js-results").append(`<div class="result-item">${dataPoint.name}</div>`);
-  });
-  $(".js-results").removeClass("hidden");
-}
 // render asteroids and assign them values from the NASA API
 function renderAsteroids(parsedData) {
   if (dataLoaded) {
@@ -297,11 +285,21 @@ function renderAsteroids(parsedData) {
   }
 }
 
-// function to determine if client is hovering over an object
+// function to determine if client is hovering over an object on desktop
 function mouseDetectAsteroid(event) {
   const mouse = new THREE.Vector2();
-  mouse.x = (event.clientX / width) * 2 - 1;
-  mouse.y = -(event.clientY / height) * 2 + 1;
+  mouse.x =
+    ((event.clientX - renderer.domElement.offsetLeft) /
+      renderer.domElement.width) *
+      2 -
+    1;
+  mouse.y =
+    -(
+      (event.clientY - renderer.domElement.offsetTop) /
+      renderer.domElement.height
+    ) *
+      2 +
+    1;
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
   if (dataLoaded) {
@@ -313,14 +311,64 @@ function mouseDetectAsteroid(event) {
         top: event.pageY - 50,
         left: event.pageX,
         position: "absolute",
-        background: "rgba(16, 92, 102, 0.616)",
+        background: "rgba(0, 0, 0, 0.816)",
         padding: "5px",
         color: "#FFFFFF",
         borderRadius: "5px",
         letterSpacing: "2px",
       });
-      $("#asteroidTooltip").html(`Name: ${currentAsteroid.name}`);
+      $("#asteroidTooltip").html(`<span style="color: #e1b12c">Name:</span> ${currentAsteroid.name}`);
       $("#asteroidTooltip").show();
+    } else {
+      $("html, body").css("cursor", "default");
+      $("#asteroidTooltip").hide();
+    }
+  }
+}
+
+// function to determine if client is hovering over an object on mobile
+function touchDetectAsteroid(event) {
+  const mouse = new THREE.Vector2();
+  if (event.targetTouches) {
+    mouse.x = +(event.targetTouches[0].pageX / window.innerWidth) * 2 + -1;
+    mouse.y = -(event.targetTouches[0].pageY / window.innerHeight) * 2 + 1;
+  } else {
+    mouse.x = (event.clientX / width) * 2 - 1;
+    mouse.y = -(event.clientY / height) * 2 + 1;
+  }
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+  if (dataLoaded) {
+    const intersects = raycaster.intersectObjects(asteroids);
+    if (intersects.length > 0) {
+      const currentAsteroid = intersects[0].object;
+      const currentAsteroidName = currentAsteroid.name;
+      let dangerLevel;
+      if (currentAsteroid.isDangerous) {
+        dangerLevel = "Potentially Hazardous";
+      } else {
+        dangerLevel = "Nonthreatening";
+      }
+      $("#asteroidTooltip").css({
+        top: 55,
+        left: 0,
+        position: "absolute",
+        background: "rgba(0, 0, 0, 0.8)",
+        padding: "5px",
+        color: "#FFFFFF",
+        borderRadius: "5px",
+        letterSpacing: "2px",
+        fontSize: "12px",
+        width: "fit-content",
+      });
+      $("#asteroidTooltip").html(
+        `<span style="color:#e1b12c;">Asteroid Name:</span> <br>${currentAsteroidName}<br>
+        <span style="color:#e1b12c;">Velocity:</span> <br>${currentAsteroid.velocity} mph<br>
+        <span style="color:#e1b12c;">Diameter:</span><br> ${currentAsteroid.diameter} feet<br>
+        <span style="color:#e1b12c;">Danger Level:</span> <br>${dangerLevel}`
+      );
+      $("#asteroidTooltip").show();
+      $("html, body").css("cursor", "pointer");
     } else {
       $("html, body").css("cursor", "default");
       $("#asteroidTooltip").hide();
@@ -347,7 +395,6 @@ function clickDetectAsteroid(event) {
   if (dataLoaded) {
     const intersects = raycaster.intersectObjects(asteroids);
     if (intersects.length > 0) {
-      console.log('clicked')
       const currentAsteroid = intersects[0].object;
       const currentAsteroidName = currentAsteroid.name;
       let dangerLevel;
@@ -356,19 +403,12 @@ function clickDetectAsteroid(event) {
       } else {
         dangerLevel = "Nonthreatening";
       }
-      // if (currentAsteroidName) {
-      //   $(".asteroids-results").html(
-      //     `<li>Asteroid Name: ${currentAsteroidName}</li>
-      //     <li>Asteroid Velocity: ${currentAsteroid.velocity} mph</li>
-      //     <li>Asteroid Diameter: ${currentAsteroid.diameter} feet</li>
-      //     <li>Asteroid Danger Level: ${dangerLevel}</li>`
-      //   );
-      // }
       $("#asteroidTooltip").html(
-            `Asteroid Name: ${currentAsteroidName}<br>
-            Asteroid Velocity: ${currentAsteroid.velocity} mph<br>
-            Asteroid Diameter: ${currentAsteroid.diameter} feet<br>
-            Asteroid Danger Level: ${dangerLevel}`);
+        `<span style="color:#e1b12c;">Asteroid Name:</span> <br>${currentAsteroidName}<br>
+        <span style="color:#e1b12c;">Velocity:</span> <br>${currentAsteroid.velocity} mph<br>
+        <span style="color:#e1b12c;">Diameter:</span><br> ${currentAsteroid.diameter} feet<br>
+        <span style="color:#e1b12c;">Danger Level:</span> <br>${dangerLevel}`
+      );
       $("#asteroidTooltip").show();
       $("html, body").css("cursor", "pointer");
     } else {
@@ -396,8 +436,8 @@ function onWindowResize() {
 
 // add event listener to resize renderer when browser window changes
 window.addEventListener("resize", onWindowResize);
-//
-window.addEventListener("click", clickDetectAsteroid, false);
+$(window).on("click", clickDetectAsteroid);
+$(window).on("touchstart tap", touchDetectAsteroid);
 window.addEventListener("mousemove", mouseDetectAsteroid, false);
 
 function update() {

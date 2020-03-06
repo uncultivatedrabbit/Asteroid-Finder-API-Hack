@@ -1,6 +1,0 @@
-Ideas to keep full project in scope
---------------------------------------
-
-1) Only allow users to select one day at a time, limiting clutter and amount of api calls that are done. 
-2) When user hovers over asteroid it only displays the NAME of the asteroid
-3) 
