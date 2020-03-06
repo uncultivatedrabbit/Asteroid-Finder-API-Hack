@@ -25,6 +25,7 @@ function init() {
   createUniverse();
   createRenderer();
   getAsteroidData();
+ 
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableKeys = true;
   controls.keys = {
@@ -112,11 +113,18 @@ function createUniverse() {
 }
 
 // fetchs asteroid data from NASA API
+
+
+
 function getAsteroidData() {
   const apiKey = "iQYxYsoCOcjyRLDV68fNJI3SExbOdV2PRo6E4aKb";
-  const testDate = "2020-02-01";
-  const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${testDate}&end_date=${testDate}&api_key=${apiKey}`;
-  fetch(url)
+  let testDate = "2020-02-01";
+  $('#js-form').submit(event => {
+    event.preventDefault();
+    console.log('im working')
+    testDate = $('.js-stateStart').val();
+    const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${testDate}&end_date=${testDate}&api_key=${apiKey}`;
+    fetch(url)
     .then(response => {
       if (response.ok) {
         return response.json();
@@ -128,7 +136,11 @@ function getAsteroidData() {
       createAsteroid(data);
     })
     .catch(err => console.log(err));
+
+})
 }
+
+
 
 function createAsteroid(asteroidData) {
   const parsedData = Object.values(asteroidData.near_earth_objects)[0];
