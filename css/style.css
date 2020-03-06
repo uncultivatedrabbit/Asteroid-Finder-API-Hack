@@ -2,23 +2,40 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Space Mono', monospace;
 }
 canvas {
   width: 100%;
   height: 100%;
 }
+h1,h2,h3{
+  font-family: 'Oxanium', cursive;
+}
 
-.userOuterDiv {
+
+#header{
   position: absolute;
-  top: 5%;
+  color: #eee;
+  left: 50%;
+  transform: translate(-50%);
+  font-size: 1rem;
+}
+.user-form {
+  position: fixed;
+  bottom: 10%;
   left: 2%;
-  height: 80%;
+  height: fit-content;
   padding: 15px;
   width: 25%;
-  background-color: rgba(16, 92, 102, 0.616);
+  background-color: rgba(0, 0, 0, 0.616);
   border-radius: 25px;
+  color: #eee;
+  display: flex;
+  flex-direction: column;
 }
-h1 {
+
+
+/* h1 {
   text-align: center;
   font-weight: bolder;
   color: white;
@@ -149,4 +166,4 @@ h3 {
     font-size: 1.2em;
     list-style: none;
   }
-}
+} */

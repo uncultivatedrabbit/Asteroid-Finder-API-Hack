@@ -4,40 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mapping Asteroids Orbiting Earth</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Oxanium|Space+Mono&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <div id="container">
-      <div id="asteroidTooltip"></div>
-      <div class="userOuterDiv">
-        <main>
-          <h1>
-            Plotting Asteroids with NASA Data
-          </h1>
-          <p class="instructions">
-            Instructions: Zoom-in or zoom-out, select any astroid to learn more
-            and expand your horizons. Asteroids highlighted green are marked as
-            safe, while asteroids highlighted red are a possible threat.
-          </p>
-          <h2>Current Asteroids:</h2>
-          <ul class="depictedItem js-results"></ul>
-        </main>
-        <section>
-          <form id="js-form" class="Search-Date">
-            <label id="search-label" for="date">Choose A Date:</label>
-            <input type="date" name="date" id="user-date" min="1900/01/01" max="2040/01/01"/>
-            <button type="submit" id="find-btn" class="css-search">
-              Search
-            </button>
-          </form>
-          <h3>
-            Results:
-          </h3>
-          <div class="resultDiv">
-            <ul class="asteroids-results"></ul>
-          </div>
-        </section>
+      <div id="header">
+        <h1>Visualizing Asteroid using NASA Data</h1>
       </div>
+      <div id="asteroidTooltip"></div>
+      <main class="user-form">
+        <form id="js-form" class="Search-Date">
+          <label id="search-label" for="date">Select Date:</label>
+          <input
+            type="date"
+            name="date"
+            id="user-date"
+            min="1900/01/01"
+            max="2040/01/01"
+          />
+          <button type="submit" id="find-btn" class="css-search">
+            Search
+          </button>
+        </form>
+      </main>
     </div>
 
     <script

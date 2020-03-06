@@ -240,10 +240,11 @@ function createAsteroid(asteroidData) {
     let diameter =
       Object.values(parsedData[i].estimated_diameter)[3]
         .estimated_diameter_min / 2000;
-    if (diameter < 0.3) {
-      radius = 0.3;
+        console.log(diameter)
+    if (diameter < 0.03) {
+      radius = 0.5;
     } else {
-      radius = 0.3 * diameter;
+      radius = 0.3;
     }
     if (parsedData[i].is_potentially_hazardous_asteroid) {
       asteroids.push(new THREE.Mesh(geometry, materialUnsafe));
@@ -346,6 +347,7 @@ function clickDetectAsteroid(event) {
   if (dataLoaded) {
     const intersects = raycaster.intersectObjects(asteroids);
     if (intersects.length > 0) {
+      console.log('clicked')
       const currentAsteroid = intersects[0].object;
       const currentAsteroidName = currentAsteroid.name;
       let dangerLevel;
@@ -354,15 +356,24 @@ function clickDetectAsteroid(event) {
       } else {
         dangerLevel = "Nonthreatening";
       }
-      $(".asteroids-results").html(
-        `<li>Asteroid Name: ${currentAsteroidName}</li>
-        <li>Asteroid Velocity: ${currentAsteroid.velocity} mph</li>
-        <li>Asteroid Diameter: ${currentAsteroid.diameter} feet</li>
-        <li>Asteroid Danger Level: ${dangerLevel}</li>`
-      );
+      // if (currentAsteroidName) {
+      //   $(".asteroids-results").html(
+      //     `<li>Asteroid Name: ${currentAsteroidName}</li>
+      //     <li>Asteroid Velocity: ${currentAsteroid.velocity} mph</li>
+      //     <li>Asteroid Diameter: ${currentAsteroid.diameter} feet</li>
+      //     <li>Asteroid Danger Level: ${dangerLevel}</li>`
+      //   );
+      // }
+      $("#asteroidTooltip").html(
+            `Asteroid Name: ${currentAsteroidName}<br>
+            Asteroid Velocity: ${currentAsteroid.velocity} mph<br>
+            Asteroid Diameter: ${currentAsteroid.diameter} feet<br>
+            Asteroid Danger Level: ${dangerLevel}`);
+      $("#asteroidTooltip").show();
       $("html, body").css("cursor", "pointer");
     } else {
       $("html, body").css("cursor", "default");
+      $("#asteroidTooltip").hide();
     }
   }
 }
