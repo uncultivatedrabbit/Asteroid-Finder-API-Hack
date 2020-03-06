@@ -7,7 +7,6 @@ let dataLoaded = false;
 const asteroids = [];
 const width = window.innerWidth;
 const height = window.innerHeight;
-const container = $("#container");
 
 // calls the init function
 init();
@@ -25,7 +24,7 @@ function init() {
   createUniverse();
   createRenderer();
   getAsteroidData();
- 
+
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableKeys = true;
   controls.keys = {
@@ -113,34 +112,38 @@ function createUniverse() {
 }
 
 // fetchs asteroid data from NASA API
-
-
-
 function getAsteroidData() {
   const apiKey = "iQYxYsoCOcjyRLDV68fNJI3SExbOdV2PRo6E4aKb";
-  let testDate = "2020-02-01";
-  $('#js-form').submit(event => {
+  $("#js-form").submit(event => {
     event.preventDefault();
-    console.log('im working')
-    testDate = $('.js-stateStart').val();
-    const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${testDate}&end_date=${testDate}&api_key=${apiKey}`;
+    const selectedDate = $("#user-date").val();
+    const selectedYear = selectedDate.slice(0, 4);
+    // error checking
+    if (!selectedDate) {
+      alert("Please enter a valid date");
+      return -1;
+    } else if (selectedYear < 1900) {
+      alert("Please choose a date after the year 1900");
+      return -1;
+    } else if (selectedYear >= 2040) {
+      alert("Please choose a date before 2040");
+      return -1;
+    }
+    const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${selectedDate}&end_date=${selectedDate}&api_key=${apiKey}`;
     fetch(url)
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error(response.statusText);
-      }
-    })
-    .then(data => {
-      createAsteroid(data);
-    })
-    .catch(err => console.log(err));
-
-})
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error(response.statusText);
+        }
+      })
+      .then(data => {
+        createAsteroid(data);
+      })
+      .catch(err => console.log(err));
+  });
 }
-
-
 
 function createAsteroid(asteroidData) {
   const parsedData = Object.values(asteroidData.near_earth_objects)[0];
@@ -263,7 +266,7 @@ function displayResults(parsedData) {
   });
   $(".js-results").removeClass("hidden");
 }
-
+// render asteroids and assign them values from the NASA API
 function renderAsteroids(parsedData) {
   if (dataLoaded) {
     asteroids.forEach((asteroid, index) => {
@@ -274,8 +277,20 @@ function renderAsteroids(parsedData) {
       asteroid.position.normalize();
       asteroid.position.multiplyScalar(14);
       asteroid.name = parsedData[index].name;
-      asteroid.magnitude = parsedData[index].absolute_magnitude_h;
-      console.log(asteroid.magnitude)
+      asteroid.diameter = parseInt(
+        (parsedData[index].estimated_diameter.feet.estimated_diameter_max +
+          parsedData[index].estimated_diameter.feet.estimated_diameter_max) /
+          2
+      );
+      asteroid.isDangerous =
+        parsedData[index].is_potentially_hazardous_asteroid;
+      asteroid.velocity = parseInt(
+        parsedData[index].close_approach_data[0].relative_velocity
+          .miles_per_hour
+      );
+      asteroid.milesFromEarth = parseInt(
+        parsedData[index].close_approach_data[0].miss_distance.miles
+      );
       scene.add(asteroid);
     });
   }
@@ -301,8 +316,7 @@ function mouseDetectAsteroid(event) {
         padding: "5px",
         color: "#FFFFFF",
         borderRadius: "5px",
-        letterSpacing: "2px"
-
+        letterSpacing: "2px",
       });
       $("#asteroidTooltip").html(`Name: ${currentAsteroid.name}`);
       $("#asteroidTooltip").show();
@@ -333,9 +347,19 @@ function clickDetectAsteroid(event) {
     const intersects = raycaster.intersectObjects(asteroids);
     if (intersects.length > 0) {
       const currentAsteroid = intersects[0].object;
-      const asteroidMagnitude = currentAsteroid.magnitude;
       const currentAsteroidName = currentAsteroid.name;
-      $(".asteroids-Results").html(`<ul><li>Asteroid Name: ${currentAsteroidName}</li><li>Magnitude: ${asteroidMagnitude}</li></ul>`);
+      let dangerLevel;
+      if (currentAsteroid.isDangerous) {
+        dangerLevel = "Potentially Hazardous";
+      } else {
+        dangerLevel = "Nonthreatening";
+      }
+      $(".asteroids-results").html(
+        `<li>Asteroid Name: ${currentAsteroidName}</li>
+        <li>Asteroid Velocity: ${currentAsteroid.velocity} mph</li>
+        <li>Asteroid Diameter: ${currentAsteroid.diameter} feet</li>
+        <li>Asteroid Danger Level: ${dangerLevel}</li>`
+      );
       $("html, body").css("cursor", "pointer");
     } else {
       $("html, body").css("cursor", "default");
