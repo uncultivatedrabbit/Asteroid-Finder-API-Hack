@@ -141,11 +141,11 @@ function getAsteroidData() {
       })
       .then(data => {
         if (asteroids && mesh) {
-          asteroids.forEach((asteroid,index) => {
+          asteroids.forEach((asteroid, index) => {
             asteroid.material.dispose();
             asteroid.geometry.dispose();
             scene.remove(asteroid);
-          })
+          });
           asteroids = [];
         }
         console.log(asteroids);

@@ -30,6 +30,7 @@
             min="1900-01-01"
             max="2040-01-01"
             required
+            data-polyfill="all"
           />
           <button type="submit" id="find-btn" class="css-search">
             Search
@@ -42,6 +43,9 @@
       integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
       crossorigin="anonymous"
     ></script>
+    <!-- polyfill for date picker -->
+    <script src="node_modules/better-dom/dist/better-dom.js"></script>
+    <script src="node_modules/better-dateinput-polyfill/dist/better-dateinput-polyfill.js"></script>
     <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>
     <script src="js/app.js"></script>

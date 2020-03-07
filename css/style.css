@@ -27,7 +27,7 @@ button:hover {
   justify-content: center;
   transform: translate(-50%);
   font-size: 0.5rem;
-  background-color: rgba(0, 0, 0, 0.616);
+  background-color: rgba(0, 0, 0, 0);
 }
 .user-form {
   position: fixed;
