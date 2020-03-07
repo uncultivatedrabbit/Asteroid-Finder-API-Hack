@@ -1,6 +1,6 @@
 console.clear();
 console.log("app.js loaded...");
-
+// GLOBAL VARIABLES
 let renderer, camera, scene, sphere, clouds, controls, mesh;
 // check if fetched data has been included
 let dataLoaded = false;
@@ -140,6 +140,9 @@ function getAsteroidData() {
         }
       })
       .then(data => {
+        // reset asteroids array and delete clear 
+        // previous data to assure new data is accurate
+        // and old data doesn't slow down the rendering
         if (asteroids && mesh) {
           asteroids.forEach((asteroid, index) => {
             asteroid.material.dispose();
@@ -155,6 +158,7 @@ function getAsteroidData() {
   });
 }
 
+// puzzles together each asteroid to then be pushed to the asteroid array object
 function createAsteroid(asteroidData) {
   const parsedData = Object.values(asteroidData.near_earth_objects)[0];
   let radius;
@@ -462,6 +466,7 @@ $(window).on("click", clickDetectAsteroid);
 $(window).on("touchstart tap", touchDetectAsteroid);
 window.addEventListener("mousemove", mouseDetectAsteroid, false);
 
+// game loop function that runs over and over creating animations 
 function update() {
   const orbitRadius = 15;
   sphere.rotation.y += 0.0005;
