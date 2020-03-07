@@ -1,10 +1,11 @@
+console.clear();
 console.log("app.js loaded...");
 
-let renderer, camera, scene, sphere, clouds, controls;
+let renderer, camera, scene, sphere, clouds, controls, mesh;
 // check if fetched data has been included
 let dataLoaded = false;
 // array to store asteroids once fetch call is complete
-const asteroids = [];
+let asteroids = [];
 const width = window.innerWidth;
 const height = window.innerHeight;
 
@@ -95,6 +96,7 @@ function createMoon() {
   });
   moon = new THREE.Mesh(geometry, material);
   moon.position.set(10, 10, 10);
+  moon.name = "moon";
   scene.add(moon);
 }
 
@@ -138,6 +140,15 @@ function getAsteroidData() {
         }
       })
       .then(data => {
+        if (asteroids && mesh) {
+          asteroids.forEach((asteroid,index) => {
+            asteroid.material.dispose();
+            asteroid.geometry.dispose();
+            scene.remove(asteroid);
+          })
+          asteroids = [];
+        }
+        console.log(asteroids);
         createAsteroid(data);
       })
       .catch(err => console.log(err));
@@ -239,16 +250,17 @@ function createAsteroid(asteroidData) {
     let diameter =
       Object.values(parsedData[i].estimated_diameter)[3]
         .estimated_diameter_min / 2000;
-    console.log(diameter);
-    if (diameter < 0.03) {
-      radius = 0.5;
+    if (diameter > 0.03) {
+      radius = 0.4;
     } else {
-      radius = 0.3;
+      radius = 0.2;
     }
     if (parsedData[i].is_potentially_hazardous_asteroid) {
-      asteroids.push(new THREE.Mesh(geometry, materialUnsafe));
+      mesh = new THREE.Mesh(geometry, materialUnsafe);
+      asteroids.push(mesh);
     } else {
-      asteroids.push(new THREE.Mesh(geometry, materialSafe));
+      mesh = new THREE.Mesh(geometry, materialSafe);
+      asteroids.push(mesh);
     }
   }
   dataLoaded = true;
@@ -259,28 +271,34 @@ function createAsteroid(asteroidData) {
 function renderAsteroids(parsedData) {
   if (dataLoaded) {
     asteroids.forEach((asteroid, index) => {
-      asteroid.position.x = Math.random() * 2 - 1;
-      asteroid.position.y = Math.random() * 2 - 1;
-      asteroid.position.z = Math.random() * 2 - 1;
-      asteroid.orbitRadius = Math.random() * 30 - 1;
-      asteroid.position.normalize();
-      asteroid.position.multiplyScalar(14);
-      asteroid.name = parsedData[index].name;
-      asteroid.diameter = parseInt(
-        (parsedData[index].estimated_diameter.feet.estimated_diameter_max +
-          parsedData[index].estimated_diameter.feet.estimated_diameter_max) /
-          2
-      );
-      asteroid.isDangerous =
-        parsedData[index].is_potentially_hazardous_asteroid;
-      asteroid.velocity = parseInt(
-        parsedData[index].close_approach_data[0].relative_velocity
-          .miles_per_hour
-      );
-      asteroid.milesFromEarth = parseInt(
-        parsedData[index].close_approach_data[0].miss_distance.miles
-      );
-      scene.add(asteroid);
+      if (parsedData[index]) {
+        asteroid.milesFromEarth = parseInt(
+          parsedData[index].close_approach_data[0].miss_distance.miles
+        );
+        const positionNum = +String(asteroid.milesFromEarth)
+          .slice(0, 2)
+          .split("")
+          .join(".");
+        asteroid.name = parsedData[index].name;
+        asteroid.diameter = parseInt(
+          (parsedData[index].estimated_diameter.feet.estimated_diameter_max +
+            parsedData[index].estimated_diameter.feet.estimated_diameter_max) /
+            2
+        );
+        asteroid.isDangerous =
+          parsedData[index].is_potentially_hazardous_asteroid;
+        asteroid.velocity = parseInt(
+          parsedData[index].close_approach_data[0].relative_velocity
+            .miles_per_hour
+        );
+        asteroid.position.x = Math.random() * positionNum - 1;
+        asteroid.position.y = Math.random() * positionNum - 1;
+        asteroid.position.z = Math.random() * positionNum - 1;
+        asteroid.orbitRadius = Math.random() * 30 - 1;
+        asteroid.position.normalize();
+        asteroid.position.multiplyScalar(14);
+        scene.add(asteroid);
+      }
     });
   }
 }
@@ -317,7 +335,9 @@ function mouseDetectAsteroid(event) {
         borderRadius: "5px",
         letterSpacing: "2px",
       });
-      $("#asteroidTooltip").html(`<span style="color: #e1b12c">Name:</span> ${currentAsteroid.name}`);
+      $("#asteroidTooltip").html(
+        `<span style="color: #e1b12c">Name:</span> ${currentAsteroid.name}`
+      );
       $("#asteroidTooltip").show();
     } else {
       $("html, body").css("cursor", "default");
@@ -345,9 +365,10 @@ function touchDetectAsteroid(event) {
       const currentAsteroidName = currentAsteroid.name;
       let dangerLevel;
       if (currentAsteroid.isDangerous) {
-        dangerLevel = "Potentially Hazardous";
+        dangerLevel =
+          "<span style='color:#e84118'>Potentially Hazardous</span>";
       } else {
-        dangerLevel = "Nonthreatening";
+        dangerLevel = "<span style='color:#00a8ff'>Nonthreatening</span>";
       }
       $("#asteroidTooltip").css({
         top: 55,
@@ -399,9 +420,10 @@ function clickDetectAsteroid(event) {
       const currentAsteroidName = currentAsteroid.name;
       let dangerLevel;
       if (currentAsteroid.isDangerous) {
-        dangerLevel = "Potentially Hazardous";
+        dangerLevel =
+          "<span style='color:#e84118'>Potentially Hazardous</span>";
       } else {
-        dangerLevel = "Nonthreatening";
+        dangerLevel = "<span style='color:#00a8ff'>Nonthreatening</span>";
       }
       $("#asteroidTooltip").html(
         `<span style="color:#e1b12c;">Asteroid Name:</span> <br>${currentAsteroidName}<br>
@@ -420,7 +442,7 @@ function clickDetectAsteroid(event) {
 
 // establishes the renderer and pushes it to the DOM
 function createRenderer() {
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({ antialiasing: true });
   renderer.setSize(width, height);
   container.append(renderer.domElement);
 }

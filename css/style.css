@@ -11,7 +11,7 @@ canvas {
 h1,
 h2,
 h3 {
-  font-family: "Oxanium", cursive;
+  font-family: "Oxanium", monospace;
 }
 button:hover {
   cursor: pointer;
