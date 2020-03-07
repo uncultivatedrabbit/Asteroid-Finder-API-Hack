@@ -35,15 +35,25 @@ button:hover {
   left: 2%;
   height: fit-content;
   padding: 15px;
-  background-color: rgba(0, 0, 0, 0.616);
+  background-color: rgba(0, 0, 0, 0);
   border-radius: 25px;
   color: #eee;
   display: flex;
   flex-direction: column;
-  font-size: 0.5rem;
+  font-size: 0.7rem;
   align-items: flex-start;
   justify-content: center;
   width: fit-content;
+}
+
+#asteroid-count{
+  position: absolute;
+  bottom: 5%;
+  left: 2%;
+  padding-left: 1em;
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 25px;
+  color: #eee;
 }
 
 @media screen and (min-width: 700px) {
@@ -53,10 +63,12 @@ button:hover {
   }
   .user-form {
     align-items: center;
-    font-size: 1.4rem;
-    left: 50%;
-    transform: translate(-50%);
+    font-size: 1.3rem;
     bottom: 5%;
+  }
+  #asteroid-count{
+    left: 80%;
+    font-size: 1.3rem;
   }
   input[type="date"] {
     font-size: 1.4rem;
@@ -67,6 +79,9 @@ button:hover {
 }
 
 @media screen and (min-width: 1000px) {
+  #asteroid-count{
+    left: 85%;
+  }
   input[type="date"]{
     border: none;
     background: black;

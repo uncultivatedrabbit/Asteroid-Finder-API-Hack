@@ -254,10 +254,12 @@ function createAsteroid(asteroidData) {
     let diameter =
       Object.values(parsedData[i].estimated_diameter)[3]
         .estimated_diameter_min / 2000;
-    if (diameter > 0.03) {
-      radius = 0.4;
-    } else {
+    if (diameter < 0.01) {
       radius = 0.2;
+    } else if (diameter >= 0.01 && diameter < .1) {
+      radius = 0.3;
+    } else {
+      radius = 0.4;
     }
     if (parsedData[i].is_potentially_hazardous_asteroid) {
       mesh = new THREE.Mesh(geometry, materialUnsafe);
@@ -269,8 +271,14 @@ function createAsteroid(asteroidData) {
   }
   dataLoaded = true;
   renderAsteroids(parsedData);
+  displayAsteroidCount(parsedData);
 }
 
+function displayAsteroidCount(parsedData){
+  if (dataLoaded){
+    $('#asteroid-count').html(`Asteroid Count: ${parsedData.length}`)
+  }
+}
 // render asteroids and assign them values from the NASA API
 function renderAsteroids(parsedData) {
   if (dataLoaded) {
