@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
     <title>Mapping Asteroids Orbiting Earth</title>
     <link
-      href="https://fonts.googleapis.com/css?family=Oxanium|Space+Mono&display=swap"
+      href="https://fonts.googleapis.com/css?family=Space+Mono&display=swap"
       rel="stylesheet"
     />
+    <link
+    href="https://fonts.googleapis.com/css?family=Oxanium&display=swap"
+    rel="stylesheet"
+  />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
@@ -18,13 +22,13 @@
       <div id="asteroidTooltip"></div>
       <main class="user-form">
         <form id="js-form" class="Search-Date">
-          <label id="search-label" for="date">Select Date:</label>
+          <label id="search-label" for="user-date">Select Date:</label>
           <input
             type="date"
             name="date"
             id="user-date"
-            min="1900/01/01"
-            max="2040/01/01"
+            min="1900-01-01"
+            max="2040-01-01"
             required
           />
           <button type="submit" id="find-btn" class="css-search">
