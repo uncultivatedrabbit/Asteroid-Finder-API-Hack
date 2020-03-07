@@ -1,6 +1,6 @@
 # Visualizing Asteroids in 3D using NASA Data
 
-Interactive, scalable, 3D rendering of earth with nearby asteroids. Each asteroid is designed to reflect their relative size, distance from earth, and highlighted to reflect potential dangers.
+Interactive, scalable, 3D rendering of earth with nearby asteroids. Each asteroid is designed to reflect their relative size, distance from earth, and highlighted to reflect potential dangers. User can interact in all three dimensions, expand, shrink, and rotate using the mouse, touch, or keyboard.
 
 ## Motivation
 
@@ -14,9 +14,9 @@ Desktop Views:
 ![alt text](images/Visualization-2.png "Desktop View 2")
 
 Mobile Views:
-![alt text](images/mobile-1.png "Mobile View 1")
+![alt text](images/mobile-1.jpg "Mobile View 1")
 
-![alt text](images/Mobile-2.png "Mobile View 2")
+![alt text](images/Mobile-2.jpg "Mobile View 2")
 
 ## Built With
 
