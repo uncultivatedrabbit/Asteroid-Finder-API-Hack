@@ -62,7 +62,7 @@ button:hover {
     font-size: 1.4rem;
   }
   #asteroidTooltip {
-    font-size: 1.4rem !important;
+    font-size: 1.1rem !important;
   }
 }
 
@@ -76,9 +76,6 @@ button:hover {
   ::-webkit-datetime-edit { border: none; }
   ::-webkit-datetime-edit-fields-wrapper {
     background: rgb(0, 0, 0, 0.8);
-  }
-  ::-webkit-datetime-edit-text {
-    padding: 0 0.3em;
   }
   ::-webkit-inner-spin-button {
     display: none;
