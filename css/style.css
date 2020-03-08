@@ -3,6 +3,8 @@ body {
   padding: 0;
   box-sizing: border-box;
   font-family: "Space Mono", monospace;
+  background: black;
+  overflow: hidden;
 }
 canvas {
   width: 100%;
@@ -56,7 +58,31 @@ button:hover {
   color: #eee;
 }
 
+#about{
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0);
+  color: #eee;
+  font-size: 14px;
+  top: 7%;
+  padding: 0 1em 0 1em;
+}
+
+
+
+.asteroid-label{
+  color:#e1b12c;
+}
+.dangerous{
+  color:#e84118;
+}
+.safe{
+  color:#00a8ff;
+}
+
 @media screen and (min-width: 700px) {
+  #about{
+    font-size: 18px;
+  }
   #header {
     font-size: 0.8rem;
     letter-spacing: 7px;
@@ -79,6 +105,16 @@ button:hover {
 }
 
 @media screen and (min-width: 1000px) {
+  #about{
+  position: absolute;
+  top: 85%;
+  right: 2%;
+  width: 40%;
+  height: fit-content;
+  padding-left: 1em;
+  background-color: rgba(0, 0, 0, 0);
+  color: #eee;
+}
   #asteroid-count{
     left: 85%;
   }

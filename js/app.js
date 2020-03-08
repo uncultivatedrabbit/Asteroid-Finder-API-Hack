@@ -1,14 +1,23 @@
-console.clear();
-console.log("app.js loaded...");
 // GLOBAL VARIABLES
-let renderer, camera, scene, sphere, clouds, controls, mesh;
-// check if fetched data has been included
-let dataLoaded = false;
+const STORE = {
+  renderer: '',
+  camera: '',
+  scene: '',
+  sphere: '',
+  clouds: '',
+  controls: '',
+  mesh: '',
+  moon: '',
+  dataLoaded: false,
+  asteroids: [],
+  width: window.innerWidth,
+  height: window.innerHeight,
+  container: document.getElementById('container')
+}
+
+
 // array to store asteroids once fetch call is complete
-let asteroids = [];
-const width = window.innerWidth;
-const height = window.innerHeight;
-const container = document.getElementById('container');
+
 
 // calls the init function
 init();
@@ -17,7 +26,7 @@ init();
 function init() {
   //initially hide asteroid tool tip
   $("#asteroidTooltip").hide();
-  scene = new THREE.Scene();
+  STORE.scene = new THREE.Scene();
   createCamera();
   createLight();
   createEarth();
@@ -26,9 +35,9 @@ function init() {
   createUniverse();
   createRenderer();
   getAsteroidData();
-  controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableKeys = true;
-  controls.keys = {
+  STORE.controls = new THREE.OrbitControls(STORE.camera, STORE.renderer.domElement);
+  STORE.controls.enableKeys = true;
+  STORE.controls.keys = {
     LEFT: 65, // A button
     UP: 87, // W button
     RIGHT: 68, // D button
@@ -38,12 +47,12 @@ function init() {
 // establishs camera angle and perspective
 function createCamera() {
   const fieldOfView = 45;
-  const aspect = width / height;
+  const aspect = STORE.width / STORE.height;
   const near = 0.01;
   const far = 1000;
-  camera = new THREE.PerspectiveCamera(fieldOfView, aspect, near, far);
-  camera.position.set(0, 0, 40); // x | y | z
-  scene.add(camera);
+  STORE.camera = new THREE.PerspectiveCamera(fieldOfView, aspect, near, far);
+  STORE.camera.position.set(0, 0, 40); // x | y | z
+  STORE.scene.add(STORE.camera);
 }
 
 // add ambient and directional light
@@ -53,8 +62,8 @@ function createLight() {
   const ambientLight = new THREE.AmbientLight(0x333333);
   const directionalLight = new THREE.DirectionalLight(0xeeeeee, 1);
   directionalLight.position.set(5, 3, 5); // x | y | z
-  scene.add(ambientLight);
-  scene.add(directionalLight);
+  STORE.scene.add(ambientLight);
+  STORE.scene.add(directionalLight);
 }
 
 // create model of Earth using sphere geometry and material (or mesh)
@@ -70,8 +79,8 @@ function createEarth() {
     specularMap: specularMap,
     specular: new THREE.Color("grey"),
   });
-  sphere = new THREE.Mesh(geometry, material);
-  scene.add(sphere);
+  STORE.sphere = new THREE.Mesh(geometry, material);
+  STORE.scene.add(STORE.sphere);
 }
 
 // creates a sphere of clouds that is slightly larger than the earth, giving the illusion of depth
@@ -84,8 +93,8 @@ function createClouds() {
     depthWrite: false,
     opacity: 0.8,
   });
-  clouds = new THREE.Mesh(geometry, material);
-  scene.add(clouds);
+  STORE.clouds = new THREE.Mesh(geometry, material);
+  STORE.scene.add(STORE.clouds);
 }
 
 // creans earth's moon
@@ -95,10 +104,10 @@ function createMoon() {
   const material = new THREE.MeshPhongMaterial({
     map: map,
   });
-  moon = new THREE.Mesh(geometry, material);
-  moon.position.set(10, 10, 10);
-  moon.name = "moon";
-  scene.add(moon);
+  STORE.moon = new THREE.Mesh(geometry, material);
+  STORE.moon.position.set(10, 10, 10);
+  STORE.moon.name = "moon";
+  STORE.scene.add(STORE.moon);
 }
 
 // creates a larger sphere to house the universe
@@ -110,7 +119,7 @@ function createUniverse() {
     side: THREE.BackSide,
   });
   const universe = new THREE.Mesh(geometry, material);
-  scene.add(universe);
+  STORE.scene.add(universe);
 }
 
 // fetchs asteroid data from NASA API
@@ -144,18 +153,17 @@ function getAsteroidData() {
         // reset asteroids array and delete clear 
         // previous data to assure new data is accurate
         // and old data doesn't slow down the rendering
-        if (asteroids && mesh) {
-          asteroids.forEach((asteroid, index) => {
+        if (STORE.asteroids && STORE.mesh) {
+          STORE.asteroids.forEach((asteroid, index) => {
             asteroid.material.dispose();
             asteroid.geometry.dispose();
-            scene.remove(asteroid);
+            STORE.scene.remove(asteroid);
           });
-          asteroids = [];
+          STORE.asteroids = [];
         }
-        console.log(asteroids);
         createAsteroid(data);
       })
-      .catch(err => console.log(err));
+      .catch(err => alert('Apologies, looks like your request was lost in space.', err));
   });
 }
 
@@ -263,27 +271,28 @@ function createAsteroid(asteroidData) {
       radius = 0.4;
     }
     if (parsedData[i].is_potentially_hazardous_asteroid) {
-      mesh = new THREE.Mesh(geometry, materialUnsafe);
-      asteroids.push(mesh);
+      STORE.mesh = new THREE.Mesh(geometry, materialUnsafe);
+      STORE.asteroids.push(STORE.mesh);
     } else {
-      mesh = new THREE.Mesh(geometry, materialSafe);
-      asteroids.push(mesh);
+      STORE.mesh = new THREE.Mesh(geometry, materialSafe);
+      STORE.asteroids.push(STORE.mesh);
     }
   }
-  dataLoaded = true;
+  STORE.dataLoaded = true;
   renderAsteroids(parsedData);
   displayAsteroidCount(parsedData);
 }
 
 function displayAsteroidCount(parsedData){
-  if (dataLoaded){
+  if (STORE.dataLoaded){
+    $('#about').hide();
     $('#asteroid-count').html(`Asteroid Count: ${parsedData.length}`)
   }
 }
 // render asteroids and assign them values from the NASA API
 function renderAsteroids(parsedData) {
-  if (dataLoaded) {
-    asteroids.forEach((asteroid, index) => {
+  if (STORE.dataLoaded) {
+    STORE.asteroids.forEach((asteroid, index) => {
       if (parsedData[index]) {
         asteroid.milesFromEarth = parseInt(
           parsedData[index].close_approach_data[0].miss_distance.miles
@@ -310,7 +319,7 @@ function renderAsteroids(parsedData) {
         asteroid.orbitRadius = Math.random() * 30 - 1;
         asteroid.position.normalize();
         asteroid.position.multiplyScalar(14);
-        scene.add(asteroid);
+        STORE.scene.add(asteroid);
       }
     });
   }
@@ -320,21 +329,21 @@ function renderAsteroids(parsedData) {
 function mouseDetectAsteroid(event) {
   const mouse = new THREE.Vector2();
   mouse.x =
-    ((event.clientX - renderer.domElement.offsetLeft) /
-      renderer.domElement.width) *
+    ((event.clientX - STORE.renderer.domElement.offsetLeft) /
+      STORE.renderer.domElement.width) *
       2 -
     1;
   mouse.y =
     -(
-      (event.clientY - renderer.domElement.offsetTop) /
-      renderer.domElement.height
+      (event.clientY - STORE.renderer.domElement.offsetTop) /
+      STORE.renderer.domElement.height
     ) *
       2 +
     1;
   const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-  if (dataLoaded) {
-    const intersects = raycaster.intersectObjects(asteroids);
+  raycaster.setFromCamera(mouse, STORE.camera);
+  if (STORE.dataLoaded) {
+    const intersects = raycaster.intersectObjects(STORE.asteroids);
     if (intersects.length > 0) {
       const currentAsteroid = intersects[0].object;
       $("html, body").css("cursor", "pointer");
@@ -349,7 +358,7 @@ function mouseDetectAsteroid(event) {
         letterSpacing: "2px",
       });
       $("#asteroidTooltip").html(
-        `<span style="color: #e1b12c">Name:</span> ${currentAsteroid.name}`
+        `<span class="asteroid-label">Name:</span> ${currentAsteroid.name}`
       );
       $("#asteroidTooltip").show();
     } else {
@@ -366,22 +375,22 @@ function touchDetectAsteroid(event) {
     mouse.x = +(event.targetTouches[0].pageX / window.innerWidth) * 2 + -1;
     mouse.y = -(event.targetTouches[0].pageY / window.innerHeight) * 2 + 1;
   } else {
-    mouse.x = (event.clientX / width) * 2 - 1;
-    mouse.y = -(event.clientY / height) * 2 + 1;
+    mouse.x = (event.clientX / STORE.width) * 2 - 1;
+    mouse.y = -(event.clientY / STORE.height) * 2 + 1;
   }
   const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-  if (dataLoaded) {
-    const intersects = raycaster.intersectObjects(asteroids);
+  raycaster.setFromCamera(mouse, STORE.camera);
+  if (STORE.dataLoaded) {
+    const intersects = raycaster.intersectObjects(STORE.asteroids);
     if (intersects.length > 0) {
       const currentAsteroid = intersects[0].object;
       const currentAsteroidName = currentAsteroid.name;
       let dangerLevel;
       if (currentAsteroid.isDangerous) {
         dangerLevel =
-          "<span style='color:#e84118'>Potentially Hazardous</span>";
+          "<span class='dangerous'>Potentially Hazardous</span>";
       } else {
-        dangerLevel = "<span style='color:#00a8ff'>Nonthreatening</span>";
+        dangerLevel = "<span class='safe'>Nonthreatening</span>";
       }
       $("#asteroidTooltip").css({
         top: 55,
@@ -396,10 +405,10 @@ function touchDetectAsteroid(event) {
         width: "fit-content",
       });
       $("#asteroidTooltip").html(
-        `<span style="color:#e1b12c;">Asteroid Name:</span> <br>${currentAsteroidName}<br>
-        <span style="color:#e1b12c;">Velocity:</span> <br>${currentAsteroid.velocity} mph<br>
-        <span style="color:#e1b12c;">Diameter:</span><br> ${currentAsteroid.diameter} feet<br>
-        <span style="color:#e1b12c;">Danger Level:</span> <br>${dangerLevel}`
+        `<span class="asteroid-label">Asteroid Name:</span> <br>${currentAsteroidName}<br>
+        <span class="asteroid-label">Velocity:</span> <br>${currentAsteroid.velocity} mph<br>
+        <span class="asteroid-label">Diameter:</span><br> ${currentAsteroid.diameter} feet<br>
+        <span class="asteroid-label">Danger Level:</span> <br>${dangerLevel}`
       );
       $("#asteroidTooltip").show();
       $("html, body").css("cursor", "pointer");
@@ -413,36 +422,36 @@ function touchDetectAsteroid(event) {
 function clickDetectAsteroid(event) {
   const mouse = new THREE.Vector2();
   mouse.x =
-    ((event.clientX - renderer.domElement.offsetLeft) /
-      renderer.domElement.width) *
+    ((event.clientX - STORE.renderer.domElement.offsetLeft) /
+      STORE.renderer.domElement.width) *
       2 -
     1;
   mouse.y =
     -(
-      (event.clientY - renderer.domElement.offsetTop) /
-      renderer.domElement.height
+      (event.clientY - STORE.renderer.domElement.offsetTop) /
+      STORE.renderer.domElement.height
     ) *
       2 +
     1;
   const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(mouse, camera);
-  if (dataLoaded) {
-    const intersects = raycaster.intersectObjects(asteroids);
+  raycaster.setFromCamera(mouse, STORE.camera);
+  if (STORE.dataLoaded) {
+    const intersects = raycaster.intersectObjects(STORE.asteroids);
     if (intersects.length > 0) {
       const currentAsteroid = intersects[0].object;
       const currentAsteroidName = currentAsteroid.name;
       let dangerLevel;
       if (currentAsteroid.isDangerous) {
         dangerLevel =
-          "<span style='color:#e84118'>Potentially Hazardous</span>";
+          "<span class='dangerous'>Potentially Hazardous</span>";
       } else {
-        dangerLevel = "<span style='color:#00a8ff'>Nonthreatening</span>";
+        dangerLevel = "<span class='safe'>Nonthreatening</span>";
       }
       $("#asteroidTooltip").html(
-        `<span style="color:#e1b12c;">Asteroid Name:</span> <br>${currentAsteroidName}<br>
-        <span style="color:#e1b12c;">Velocity:</span> <br>${currentAsteroid.velocity} mph<br>
-        <span style="color:#e1b12c;">Diameter:</span><br> ${currentAsteroid.diameter} feet<br>
-        <span style="color:#e1b12c;">Danger Level:</span> <br>${dangerLevel}`
+        `<span class="asteroid-label">Asteroid Name:</span> <br>${currentAsteroidName}<br>
+        <span class="asteroid-label">Velocity:</span> <br>${currentAsteroid.velocity} mph<br>
+        <span class="asteroid-label">Diameter:</span><br> ${currentAsteroid.diameter} feet<br>
+        <span class="asteroid-label">Danger Level:</span> <br>${dangerLevel}`
       );
       $("#asteroidTooltip").show();
       $("html, body").css("cursor", "pointer");
@@ -455,18 +464,18 @@ function clickDetectAsteroid(event) {
 
 // establishes the renderer and pushes it to the DOM
 function createRenderer() {
-  renderer = new THREE.WebGLRenderer({ antialiasing: true });
-  renderer.setSize(width, height);
-  container.append(renderer.domElement);
+  STORE.renderer = new THREE.WebGLRenderer();
+  STORE.renderer.setSize(STORE.width, STORE.height);
+  STORE.container.append(STORE.renderer.domElement);
 }
 
 // makes sure to dynamically resize the window if a user changes the size of their window
 function onWindowResize() {
   const width = window.innerWidth;
   const height = window.innerHeight;
-  renderer.setSize(width, height);
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
+  STORE.renderer.setSize(width, height);
+  STORE.camera.aspect = width / height;
+  STORE.camera.updateProjectionMatrix();
 }
 
 // add event listener to resize renderer when browser window changes
@@ -478,26 +487,26 @@ window.addEventListener("mousemove", mouseDetectAsteroid, false);
 // game loop function that runs over and over creating animations 
 function update() {
   const orbitRadius = 15;
-  sphere.rotation.y += 0.0005;
-  moon.rotation.y += 0.0005;
-  clouds.rotation.y += 0.0003;
-  if (dataLoaded) {
-    asteroids.forEach((asteroid, index) => {
+  STORE.sphere.rotation.y += 0.0005;
+  STORE.moon.rotation.y += 0.0005;
+  STORE.clouds.rotation.y += 0.0003;
+  if (STORE.dataLoaded) {
+    STORE.asteroids.forEach((asteroid, index) => {
       asteroid.rotation.y += 0.03;
       asteroid.rotation.x += 0.03;
     });
   }
   date = Date.now() * 0.00008;
-  moon.position.set(
+  STORE.moon.position.set(
     -Math.cos(date) * orbitRadius,
-    moon.position.y,
+    STORE.moon.position.y,
     Math.sin(date) * orbitRadius
   );
 }
 // renders the scene and camera
 function render() {
-  controls.update();
-  renderer.render(scene, camera);
+  STORE.controls.update();
+  STORE.renderer.render(STORE.scene, STORE.camera);
 }
 // IIFE that starts an infinite game loop
 (function animate() {
