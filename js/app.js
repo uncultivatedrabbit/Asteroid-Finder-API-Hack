@@ -16,9 +16,6 @@ const STORE = {
 }
 
 
-// array to store asteroids once fetch call is complete
-
-
 // calls the init function
 init();
 
